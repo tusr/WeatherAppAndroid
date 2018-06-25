@@ -47,58 +47,65 @@ static TextView temperatureTextView,visibilityTextView,timezoneTextView,summaryT
         summaryTextView = findViewById(R.id.summary);
         pd = new ProgressDialog(this);
 pd.setCancelable(false);
-    }
+getButton.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+        downloadTask = new DownloadTask();
 
 
-void getLocation(View V){
-    downloadTask = new DownloadTask();
-
-
-    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-    imm.hideSoftInputFromWindow(zipEdit.getWindowToken(), 0);
-    if(!isOnline()){
-        Toast.makeText(this,"Check Internet Connection",Toast.LENGTH_SHORT).show();
-    }
- else{
-        if(zipEdit.getText().toString().trim().length()<3)
-        {
-            Toast.makeText(this,"Enter valid zip code",Toast.LENGTH_SHORT).show();
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(zipEdit.getWindowToken(), 0);
+        if(!isOnline()){
+            Toast.makeText(getApplicationContext(),"Check Internet Connection",Toast.LENGTH_SHORT).show();
         }
-        else {
-            final Geocoder geocoder = new Geocoder(this);
+        else{
+            if(zipEdit.getText().toString().trim().length()<3)
             {
-                zipCode = zipEdit.getText().toString();
-                try {
+                Toast.makeText(getApplicationContext(),"Enter valid zip code",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                final Geocoder geocoder = new Geocoder(getApplicationContext());
+                {
+                    zipCode = zipEdit.getText().toString();
+                    try {
 
-                    List<Address> addresses = geocoder.getFromLocationName(zipCode, 1);
-                    if (addresses != null && !addresses.isEmpty()) {
-                        Address address = addresses.get(0);
-                        lat=address.getLatitude();
-                        lang=address.getLongitude();
-                        message = String.format("Latitude: %f, Longitude: %f",
-                                address.getLatitude(), address.getLongitude());
+                        List<Address> addresses = geocoder.getFromLocationName(zipCode, 1);
+                        if (addresses != null && !addresses.isEmpty()) {
+                            Address address = addresses.get(0);
+                            lat=address.getLatitude();
+                            lang=address.getLongitude();
+                            message = String.format("Latitude: %f, Longitude: %f",
+                                    address.getLatitude(), address.getLongitude());
 
-                        pd.setMessage("Loading please wait");
-                        pd.show();
-                        downloadTask.execute("https://api.darksky.net/forecast/5e4edd4f2a73c0da35c2d213607d97d5/"+String.valueOf(lat)+","+String.valueOf(lang));
-                    } else {
-                    temperatureTextView.setText("");
-                    visibilityTextView.setText("");
-                    timezoneTextView.setText("");
-                    summaryTextView.setText("");
-                        Toast.makeText(this, "Unable to locate zipcode", Toast.LENGTH_LONG).show();
+                            pd.setMessage("Loading please wait");
+                            pd.show();
+                            downloadTask.execute("https://api.darksky.net/forecast/5e4edd4f2a73c0da35c2d213607d97d5/"+String.valueOf(lat)+","+String.valueOf(lang));
+                        } else {
+                            temperatureTextView.setText("");
+                            visibilityTextView.setText("");
+                            timezoneTextView.setText("");
+                            summaryTextView.setText("");
+                            Toast.makeText(getApplicationContext(), "Unable to locate zipcode", Toast.LENGTH_LONG).show();
 
+                        }
+                    } catch (IOException e) {
                     }
-                } catch (IOException e) {
-                }
-                finally {
-                    //Please place your API key in the below line// you can generate it from darksky
-                    ;
-                }
-            }}
+                    finally {
+                        //Please place your API key in the below line// you can generate it from darksky
+                        ;
+                    }
+                }}
 
-    }
         }
+    }
+    }
+);}
+
+
+
+
+
+
     public boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnectedOrConnecting();
